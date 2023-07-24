@@ -81,6 +81,49 @@ async function run() {
       }
     })
 
+    // for college edit page
+    app.get('/postedAdmissionInfo/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const options = {
+        projection: { photo:1, subject:1, college:1, number:1, name: 1, email:1},
+      };
+      const result = await admissionCollection.findOne(query, options);
+      res.send(result);
+    })
+
+    // if need to delete the selected college
+    app.delete('/myColleges/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await admissionCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    // update college info
+    app.put('/myColleges/:id', async(req, res) => {
+      const id = req.params.id;
+      const body = req.body;
+      console.log(body);
+      const filter = {_id: new ObjectId(id)}
+      const options = { upsert: true };
+      const updatedCollege = {
+        $set: {
+          name: body.name, 
+          email: body.email, 
+          photo: body.photo,
+          subject: body.subject,
+          number: body.number,
+          address: body.address,
+          dob: body.dob,
+          college:body.college
+        }
+      }
+
+      const result = await admissionCollection.updateOne(filter, updatedCollege, options);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
